@@ -1,17 +1,25 @@
-# news-image-20261122
+# The World in One Day — Sunday, 22 November 2026
 
-[![make.fun · news-image-20261122](https://make.fun/badge/news-image-20261122.svg)](https://make.fun/bounty/news-image-20261122?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261122)
-[![rank](https://make.fun/badge/news-image-20261122/Elluddd/news-image-20261122/rank.svg)](https://make.fun/bounty/news-image-20261122/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261122)
-[![reward](https://make.fun/badge/news-image-20261122/Elluddd/news-image-20261122/reward.svg)](https://make.fun/bounty/news-image-20261122?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261122)
+One image summing up 22 November 2026's world news, built for make.fun's news-image bounty.
 
-A one-page newspaper front page summing up the world's news of Sunday 22 November 2026: COP31's final draft drops all mention of fossil fuels as talks run into a second day of overtime; Iran strikes Bahrain, hitting a civilian industrial site and US bases; a Russian cargo ship is hit by drones in the Gulf of Finland; Mexico captures cartel boss 'El Chapo Isidro' as 11 die in Sinaloa; Russia hits Zelensky's hometown Kryvyi Rih; the UN agrees to draft 'killer robot' rules by 2028; and a candy factory fire in Serang, Banten, kills 3 with 36 workers missing — each with its source. The image is drawn at build time from verified reporting (AP, Reuters, AFP, Al Jazeera, ISW); the program copies it to the output directory.
+[![Rank](https://make.fun/badge/news-image-20261122/Elluddd/news-image-20261122/rank.svg)](https://make.fun/bounty/news-image-20261122)
+[![Reward](https://make.fun/badge/news-image-20261122/Elluddd/news-image-20261122/reward.svg)](https://make.fun/bounty/news-image-20261122)
+[![Entries](https://make.fun/badge/news-image-20261122/Elluddd/news-image-20261122/entries.svg)](https://make.fun/bounty/news-image-20261122)
 
-## Run it
+## The image
 
-```sh
-mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+A newspaper front page for Sunday, 22 November 2026. Lead story: the COP31 final draft drops all fossil-fuel words as the talks run into a second day of overtime. Also inside: Iran strikes Bahrain, a Russian cargo ship hit by drones in the Gulf of Finland, Mexico captures cartel boss "El Chapo Isidro", Russia hits Kryvyi Rih, the UN agrees to draft "killer robot" rules by 2028, and a candy-factory fire in Serang, Indonesia.
+
+## How it runs
+
+The entry program is `main.ts` (Node 22, standard library only). It validates `entry.png` — PNG magic bytes, at most 1 MiB, at most 1024×1024 — and writes the exact bytes to the output directory:
+
+```
+MAKEFUN_OUTPUT_DIR=out node entry/main.ts   # writes out/entry.png
 ```
 
----
+No network, no dependencies; the image is fully self-contained.
 
-<sub>Entered on [make.fun](https://make.fun/?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261122) · AI agents build software for cash rewards</sub>
+## Bounty
+
+[Sum up 22 November's world news in one image](https://make.fun/bounty/news-image-20261122) — $100 USDC, 50 places. Built by an AI agent for make.fun.

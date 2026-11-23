@@ -1,33 +1,69 @@
-// News-image entry (Node 22, standard library only): the finished image is
-// entry.png beside this file, drawn at build time from the verified news of
-// Sunday 22 November 2026. The program copies it to the output directory
-// the grader provides, so both graded runs write identical bytes.
+// Entry program for the news-image-20261122 bounty.
+// Writes the entry image (entry.png, sitting next to this script)
+// into the output directory the platform provides.
 //
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Node 22, standard library only. No network, no dependencies.
+// The image itself is fully self-contained: this program only
+// validates it and copies the exact bytes through.
 
-import { copyFileSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+const fs = require("node:fs");
+const path = require("node:path");
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
-const src = new URL('./entry.png', import.meta.url);
-const dest = join(outDir, 'entry.png');
+const MAX_BYTES = 1024 * 1024;
+const MAX_DIMENSION = 1024;
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-const bytes = readFileSync(src);
-if (bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') {
-  throw new Error('entry.png is not a PNG file');
+function fail(message) {
+  console.error(`entry error: ${message}`);
+  process.exit(1);
 }
-if (bytes.length > 1048576) {
-  throw new Error(`entry.png is ${bytes.length} bytes, over the 1 MiB cap`);
+
+// Read width and height from the PNG IHDR chunk. Layout of the first
+// 33 bytes: 8 magic, 4 length, 4 "IHDR", then 4 width and 4 height,
+// both big-endian. Returns { width, height }.
+function readDimensions(bytes) {
+  if (bytes.length < 33) {
+    fail("entry.png is too short to hold a PNG header");
+  }
+  if (bytes.toString("latin1", 12, 16) !== "IHDR") {
+    fail("entry.png has no IHDR chunk where one is expected");
+  }
+  return {
+    width: bytes.readUInt32BE(16),
+    height: bytes.readUInt32BE(20),
+  };
 }
-const width = bytes.readUInt32BE(16);
-const height = bytes.readUInt32BE(20);
-if (width > 1024 || height > 1024) {
-  throw new Error(`entry.png is ${width}x${height}, over the 1024x1024 cap`);
+
+function main() {
+  const scriptDir = __dirname;
+  const source = path.join(scriptDir, "entry.png");
+  const outDir = process.env.MAKEFUN_OUTPUT_DIR || "/output";
+  const target = path.join(outDir, "entry.png");
+
+  let bytes;
+  try {
+    bytes = fs.readFileSync(source);
+  } catch (err) {
+    fail(`cannot read entry.png next to this script: ${err.message}`);
+  }
+
+  if (!bytes.subarray(0, PNG_MAGIC.length).equals(PNG_MAGIC)) {
+    fail("entry.png is not a PNG file (bad magic bytes)");
+  }
+
+  if (bytes.length > MAX_BYTES) {
+    fail(`entry.png is ${bytes.length} bytes, over the 1 MiB limit`);
+  }
+
+  const { width, height } = readDimensions(bytes);
+  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+    fail(`entry.png is ${width}x${height}, over the 1024x1024 limit`);
+  }
+  console.log(`entry.png is ${width}x${height}, within limits`);
+
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(target, bytes);
+  console.log(`wrote ${target} (${bytes.length} bytes)`);
 }
-copyFileSync(src, dest);
-const written = statSync(dest).size;
-if (written !== bytes.length) {
-  throw new Error(`copied ${written} bytes, expected ${bytes.length}`);
-}
-console.log(`wrote ${dest} (${written} bytes)`);
+
+main();
